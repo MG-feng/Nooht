@@ -5,7 +5,7 @@ import torch.nn.functional as F
 class MemoryImportancePredictor(nn.Module):
     def __init__(self, dim: int, hidden_dim: int = 256):
         super().__init__(); self.dim = dim
-        self.predictor = nn.Sequential(nn.Linear(dim, hidden_dim), nn.GELU(), nn.Linear(hidden_dim, hidden_dim // 2), nn.GELU(), nn.Linear(hidden_dim, 1), nn.Sigmoid())
+        self.predictor = nn.Sequential(nn.Linear(dim, hidden_dim), nn.GELU(), nn.Linear(hidden_dim, hidden_dim // 2), nn.GELU(), nn.Linear(hidden_dim // 2, 1), nn.Sigmoid())
         self.threshold = nn.Parameter(torch.tensor(0.3))
     def forward(self, write_vectors: torch.Tensor) -> torch.Tensor: return self.predictor(write_vectors)
     def filter_by_importance(self, write_vectors: torch.Tensor, min_importance: float = None) -> tuple:

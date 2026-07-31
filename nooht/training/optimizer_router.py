@@ -51,13 +51,18 @@ class OptimizerRouter:
             elif "knowledge" in name: know_params.append(p)
             elif "token_embedding" in name or "output_proj" in name: embed_params.append(p)
             else: ncc_dense_params.append(p)
-        self.opt_mem = Lion(mem_params, lr=5e-5)
-        self.opt_reason = AdamW(reason_params, lr=2e-4)
-        self.opt_know = Muon(know_params, lr=8e-5)
-        self.opt_embed = Adafactor(embed_params, lr=1e-4)
-        self.opt_ncc = AdamW(ncc_dense_params, lr=1e-4, weight_decay=0.01)
-        self.all_optimizers = [self.opt_mem, self.opt_reason, self.opt_know, self.opt_embed, self.opt_ncc]
+        
+        # Handle empty parameter lists gracefully
+        self.opt_mem = Lion(mem_params, lr=5e-5) if mem_params else None
+        self.opt_reason = AdamW(reason_params, lr=2e-4) if reason_params else None
+        self.opt_know = Muon(know_params, lr=8e-5) if know_params else None
+        self.opt_embed = Adafactor(embed_params, lr=1e-4) if embed_params else None
+        self.opt_ncc = AdamW(ncc_dense_params, lr=1e-4, weight_decay=0.01) if ncc_dense_params else None
+        
+        self.all_optimizers = [opt for opt in [self.opt_mem, self.opt_reason, self.opt_know, self.opt_embed, self.opt_ncc] if opt is not None]
+    
     def step(self):
         for opt in self.all_optimizers: opt.step()
+    
     def zero_grad(self, set_to_none=True):
         for opt in self.all_optimizers: opt.zero_grad(set_to_none=set_to_none)

@@ -26,6 +26,9 @@ class MemorySyncManager:
             global_write = filtered_vectors.clone()
             dist.all_reduce(global_write, op=dist.ReduceOp.SUM)
             global_write /= self.world_size
+        # Aggregate across batch dimension to match memory shape [num_slots, dim]
+        if global_write.dim() == 2 and global_write.size(0) != self.memory.size(0):
+            global_write = global_write.mean(dim=0, keepdim=True).expand_as(self.memory.data)
         self.memory.data.mul_(self.ema_decay).add_(global_write, alpha=(1 - self.ema_decay))
 
     def get_memory_snapshot(self) -> torch.Tensor: return self.memory.data.clone()
