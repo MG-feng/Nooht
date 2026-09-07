@@ -1,0 +1,5 @@
+# Jamba 集成测试钉定版本
+transformers==5.16.1
+huggingface_hub==1.22.0
+pytest>=8.0.0
+# torch 由 CI 单独安装 CPU wheel：torch==2.14.0+cpu
