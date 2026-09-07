@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nooht"
+version = "0.1.0"
+description = "Nooht — 基于 Jamba 底座的多硬件后端适配 / 选择性记忆压缩 / 人设锚点锁定"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+dependencies = [
+    "torch>=2.1",
+    "transformers>=4.45",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+xla = ["torch_xla"]
+oneapi = ["intel_extension_for_pytorch"]
+
+[tool.setuptools.packages.find]
+include = ["nooht*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "integration: 版本敏感的 Jamba 集成测试（须在 requirements/ci-pinned.txt 钉定环境运行）",
+]

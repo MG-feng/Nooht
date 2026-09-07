@@ -1,0 +1,54 @@
+Metadata-Version: 2.4
+Name: nooht
+Version: 0.1.0
+Summary: Nooht — 基于 Jamba 底座的多硬件后端适配 / 选择性记忆压缩 / 人设锚点锁定
+License: Apache-2.0
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: torch>=2.1
+Requires-Dist: transformers>=4.45
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Provides-Extra: xla
+Requires-Dist: torch_xla; extra == "xla"
+Provides-Extra: oneapi
+Requires-Dist: intel_extension_for_pytorch; extra == "oneapi"
+
+# Nooht
+
+基于 transformers 官方 Jamba（Attention + Mamba 混合）实现的新架构开发。
+口径：Nooht 不是靠"模型更聪明"取胜，是靠同样聪明的模型能在更多硬件上跑得更快、
+角色扮演场景更稳取胜。
+
+## 三个新增模块
+1. 多硬件后端适配层 —— 运行时自动检测，优先级 CUDA > ROCm > XLA > oneAPI
+2. 选择性记忆压缩 —— 语义片段级重要性打分，人设核心信息豁免压缩
+3. 人设锚点锁定 —— 可插拔 adapter，训练/推理可开关
+
+## 后端支持（诚实状态）
+Target backends（交付目标，共 4 个）:
+
+| 后端 | 状态 |
+|---|---|
+| CUDA | 派发管道完成；本阶段走参考内核，深度优化接口已预留 |
+| ROCm | 同上 |
+| XLA | 同上 |
+| oneAPI | 同上 |
+
+Reference/test backend（不计入交付）: CPU
+
+注意：本阶段未做 kernel 级深度优化。"通过正确性测试"指派发管道 +
+参考内核的前向/反向正确性，不等于性能对齐官方 CUDA 内核。
+
+## 安装与测试
+    pip install -e ".[dev]"
+    pytest tests -m "not integration"          # 稳定单元测试
+    # 集成测试需钉版本环境：
+    pip install -r requirements/ci-pinned.txt
+    python scripts/deploy_vendor.py            # 部署 vendored Jamba
+    pytest tests -m integration                # 版本敏感的 Jamba 集成
+    python scripts/collect_p02_evidence.py     # P0-2 证据采集
+
+## 进度
+- [x] PR#1 后端适配层（待 P0-2 执行证据）
+- [ ] PR#2 记忆压缩   [ ] PR#3 人设锚点   [ ] PR#4 集成消融

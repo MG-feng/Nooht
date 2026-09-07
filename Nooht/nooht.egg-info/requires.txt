@@ -1,0 +1,11 @@
+torch>=2.1
+transformers>=4.45
+
+[dev]
+pytest>=8.0
+
+[oneapi]
+intel_extension_for_pytorch
+
+[xla]
+torch_xla
